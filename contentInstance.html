@@ -1,0 +1,70 @@
+<script type="text/javascript">
+    RED.nodes.registerType('contentInstance',{
+        category: 'onem2m',
+        color: '#a6bbcf',
+        defaults: {
+            name : {
+                value: ""
+            },
+            labels : {
+                value: ""
+            },
+            content : {
+                value: "false",
+                required: true
+            }
+        },
+        inputs: 1,
+        outputs: 1,
+        icon: "file.png",
+        label : function() {
+            return this.name || 'contentInstance';
+        },
+        oneditprepare: function() {
+            $("#node-input-typed-content").typedInput({types:['msg', {value:"full",label:"wowowo",hasValue:false}]});
+            if (this.content === "true" || this.content === true) {
+                // show complete message object
+                $("#node-input-typed-content").typedInput('type','full');
+            } else {
+                var property = (!this.content||(this.content === "false")) ? "payload" : this.content+"";
+                $("#node-input-typed-content").typedInput('type','msg');
+                $("#node-input-typed-content").typedInput('value',property);
+            }
+            $("#node-input-typed-content").on('change',function() {
+                if ($("#node-input-typed-content").typedInput('type') === 'msg' &&
+                    $("#node-input-typed-content").typedInput('value') === ''
+                ) {
+                    $("#node-input-typed-content").typedInput('value','payload');
+                }
+            });
+        },
+        oneditsave: function() {
+            var type = $("#node-input-typed-content").typedInput('type');
+            if (type === 'full') {
+                $("#node-input-content").val("true");
+            } else {
+                $("#node-input-content").val($("#node-input-typed-content").typedInput('value'));
+            }
+        }
+    });
+</script>
+
+<script type="text/x-red" data-template-name='contentInstance'>
+    <div class="form-row">
+        <label for="node-input-name"><i class="icon-tag"></i> name</label>
+        <input type="text" id="node-input-name" placeholder="name">
+    </div>
+    <div class="form-row">
+        <label for="node-input-labels"><i class="icon-tag"></i> labels</label>
+        <input type="text" id="node-input-labels" placeholder="labels">
+    </div>
+    <div class="form-row">
+        <label for="node-input-typed-content"><i class="fa fa-list"></i> content</label>
+        <input id="node-input-typed-content" type="text" style="width: 70%">
+        <input id="node-input-content" type="hidden">
+    </div>
+</script>
+
+<script type="text/x-red" data-help-name='contentInstance'>
+    <p>a oneM2M contentInstance</p>
+</script>

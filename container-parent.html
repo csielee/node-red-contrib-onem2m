@@ -1,0 +1,44 @@
+<script type="text/javascript">
+    RED.nodes.registerType('container-parent',{
+        category: 'config',
+        defaults: {
+            cse: {value:"localhost",required:true,type:"CSE"},
+            ae: {value:"",required:false,type:"AE"},
+        },
+        label: function() {
+            var cseName,aeName;
+            RED.nodes.eachConfig((e)=>{
+                if (e.id == this.cse) {
+                    if (typeof(e.label) == 'function')
+                        cseName = e.label();
+                    else
+                        cseName = e.label;
+                }
+                if (e.id == this.ae) {
+                    if (typeof(e.label) == 'function')
+                        aeName = e.label();
+                    else
+                        aeName = e.label;
+                }
+            });
+            var labelstr = "";
+            if (cseName)
+                labelstr += cseName;
+            if (aeName)
+                labelstr += ":"+aeName;
+        
+            return labelstr;
+        }
+    });
+</script>
+
+<script type="text/x-red" data-template-name="container-parent">
+    <div class="form-row">
+        <label for="node-config-input-cse"><i class="icon-bookmark"></i> CSE</label>
+        <input type="text" id="node-config-input-cse">
+    </div>
+    <div class="form-row">
+        <label for="node-config-input-ae"><i class="icon-bookmark"></i> AE</label>
+        <input type="text" id="node-config-input-ae">
+    </div>
+</script>

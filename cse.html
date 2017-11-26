@@ -1,0 +1,20 @@
+<script type="text/javascript">
+    RED.nodes.registerType('CSE',{
+        category: 'config',
+        defaults: {
+            host: {value:"localhost",required:true},
+            name: {value:""}
+        },
+        label: function() {
+            this.name = "cse://"+this.host;
+            return this.name;
+        }
+    });
+</script>
+
+<script type="text/x-red" data-template-name="CSE">
+    <div class="form-row">
+        <label for="node-config-input-host"><i class="icon-bookmark"></i> host</label>
+        <input type="text" id="node-config-input-host">
+    </div>
+</script>
