@@ -2,16 +2,18 @@
   "name": "node-red-contrib-onem2m",
   "node-red": {
     "nodes": {
-      "contentInstance" : "contentInstance.js",
-      "container" : "container.js",
-      "container-parent" : "container-parent.js",
-      "AE" : "ae.js",
-      "CSE" : "cse.js"
+      "contentInstance": "contentInstance.js",
+      "container": "container.js",
+      "container-parent": "container-parent.js",
+      "AE": "ae.js",
+      "CSE": "cse.js"
     }
   },
   "dependencies": {
     "http": "latest",
+    "node-red": "^0.17.5",
     "onem2m": "^0.1.8",
+    "request": "^2.83.0",
     "url": "latest"
   },
   "version": "0.0.1",
@@ -20,10 +22,8 @@
     "test": "echo \"Error: no test specified\" && exit 1"
   },
   "author": "csielee",
-  "repositories": [
-    {
-        "type": "git",
-        "url": "https://github.com/csielee/node-red-contrib-onem2m.git" 
-    } 
-]
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/csielee/node-red-contrib-onem2m.git"
+  }
 }

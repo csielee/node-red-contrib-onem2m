@@ -1,14 +1,58 @@
 <script type="text/javascript">
+    function testCSE(host, username) {
+        if (host == '' || host.indexOf('http') == -1) {
+            $('#cse-info').text('need cse url');
+            return;
+        }
+
+        $.ajax({
+            url : 'http://127.0.0.1:1889/proxy/' + host,
+            method : 'GET',
+            headers : {
+                //'X-M2M-Origin' : 'guest:guest',
+                'X-M2M-Origin' : username,
+                'Accept' : ' application/json'
+            }
+        }).done((data) => {
+            RED.notify("CSE OK","success");
+            console.log(data);
+            $('#cse-info').text(JSON.stringify(data));
+        }).fail((error,str,throwError) => {
+            RED.notify("CSE not OK","error");
+            console.log(error);
+            console.log(str);
+            if (error.responseText === '')
+                $('#cse-info').text('cse url error');
+            else
+                $('#cse-info').text('<' + error.status + error.statusText + '>' + error.responseText);
+        });
+    }
     RED.nodes.registerType('CSE',{
         category: 'config',
         defaults: {
             host: {value:"localhost",required:true},
-            name: {value:""}
+            name: {value:""},
+        },
+        credentials: {
+            username: {type:"text"},
+            password: {type:"password"}
         },
         label: function() {
-            this.name = "cse://"+this.host;
+            this.name = "<cse>"+this.host;
             return this.name;
-        }
+        },
+        oneditprepare: function() {
+            $('#node-config-input-host').change(function() {
+                var host = $('#node-config-input-host').val();
+                var username = $('#node-config-input-username').val();
+                testCSE(host, username);
+            });
+            $('#node-config-input-username').change(function() {
+                var host = $('#node-config-input-host').val();
+                var username = $('#node-config-input-username').val();
+                testCSE(host, username);
+            });
+        },
     });
 </script>
 
@@ -16,5 +60,16 @@
     <div class="form-row">
         <label for="node-config-input-host"><i class="icon-bookmark"></i> host</label>
         <input type="text" id="node-config-input-host">
+    </div>
+    <div id="cse-info" class="form-row">
+        
+    </div>
+    <div class="form-row">
+        <label for="node-config-input-username"><i class="icon-tag"></i> Username</label>
+        <input type="text" id="node-config-input-username">
+    </div>
+    <div class="form-row">
+        <label for="node-config-input-password"><i class="icon-tag"></i> Password</label>
+        <input type="password" id="node-config-input-password">
     </div>
 </script>

@@ -18,6 +18,7 @@ module.exports = function(RED) {
         //node.log(JSON.stringify(node));
 
         node.on('input', function(msg) {
+            RED.comms.publish('hi i am container!!!');
 
             node.send(msg);
         });
