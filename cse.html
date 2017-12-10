@@ -1,7 +1,9 @@
 <script type="text/javascript">
     function testCSE(host, username) {
         if (host == '' || host.indexOf('http') == -1) {
-            $('#cse-info').text('need cse url');
+            $('#cse-error').text('need cse url');
+            $('#cse-error').show();
+            $('#cse-info').hide();
             return;
         }
 
@@ -16,15 +18,30 @@
         }).done((data) => {
             RED.notify("CSE OK","success");
             console.log(data);
-            $('#cse-info').text(JSON.stringify(data));
+            //$('#cse-info').text(JSON.stringify(data));
+            Object.keys(data).forEach(element=>{
+                Object.keys(data[element]).forEach(property=>{
+                    var a = $('#cse-'+property);
+                    if (a.length > 0) {
+                        a.val(data[element][property]);
+                    }
+                    if (property == "rn") {
+                        $('#node-config-input-name').val(data[element][property])
+                    }
+                });
+            })
+            $('#cse-info').show();
+            $('#cse-error').hide();
         }).fail((error,str,throwError) => {
             RED.notify("CSE not OK","error");
             console.log(error);
             console.log(str);
             if (error.responseText === '')
-                $('#cse-info').text('cse url error');
+                $('#cse-error').text('cse url error');
             else
-                $('#cse-info').text('<' + error.status + error.statusText + '>' + error.responseText);
+                $('#cse-error').text('<' + error.status + error.statusText + '>' + error.responseText);
+            $('#cse-error').show();
+            $('#cse-info').hide();
         });
     }
     RED.nodes.registerType('CSE',{
@@ -38,8 +55,10 @@
             password: {type:"password"}
         },
         label: function() {
-            this.name = "<cse>"+this.host;
-            return this.name;
+            if (this.name === "")
+                return this.host || "cse";
+            else
+                return this.name;
         },
         oneditprepare: function() {
             $('#node-config-input-host').change(function() {
@@ -52,6 +71,9 @@
                 var username = $('#node-config-input-username').val();
                 testCSE(host, username);
             });
+            //$('#cse-info').css('display','none');
+            $('#cse-info').hide();
+            $('#cse-error').hide();
         },
     });
 </script>
@@ -60,9 +82,7 @@
     <div class="form-row">
         <label for="node-config-input-host"><i class="icon-bookmark"></i> host</label>
         <input type="text" id="node-config-input-host">
-    </div>
-    <div id="cse-info" class="form-row">
-        
+        <input type="text" id="node-config-input-name" style="display:none">
     </div>
     <div class="form-row">
         <label for="node-config-input-username"><i class="icon-tag"></i> Username</label>
@@ -71,5 +91,21 @@
     <div class="form-row">
         <label for="node-config-input-password"><i class="icon-tag"></i> Password</label>
         <input type="password" id="node-config-input-password">
+    </div>
+    <div id="cse-info">
+        <div class="form-row">
+            <h3>CSE info</h3>
+        </div>
+        <div class="form-row">
+            <label><i class="icon-bookmark"></i> Resource Name</label>
+            <input type="text" id="cse-rn" readonly="readonly">
+        </div>
+        <div class="form-row">
+            <label><i class="icon-bookmark"></i> Resource ID</label>
+            <input type="text" id="cse-ri" readonly="readonly">
+        </div>
+    </div>
+    <div id="cse-error" class="form-row">
+
     </div>
 </script>
