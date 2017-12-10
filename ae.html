@@ -2,22 +2,38 @@
     RED.nodes.registerType('AE',{
         category: 'config',
         defaults: {
-            name: {value:"",required:true},
+            name: {value:"",},
             cse: {value:"",required:true,type:"CSE"},
+            appName : {value:""},
+            appID : {value:"",required:true},
+            labels : {value:""},
+
         },
         label: function() {
-            return "ae-"+this.name
+            return this.name || "AE";
         }
     });
 </script>
 
 <script type="text/x-red" data-template-name="AE">
     <div class="form-row">
-        <label for="node-config-input-name"><i class="icon-bookmark"></i> name</label>
+        <label for="node-config-input-cse"><i class="icon-bookmark"></i> CSE</label>
+        <input type="text" id="node-config-input-cse">
+    </div>
+    <div class="form-row">
+        <label for="node-config-input-name"><i class="icon-bookmark"></i>resource name</label>
         <input type="text" id="node-config-input-name">
     </div>
     <div class="form-row">
-        <label for="node-config-input-cse"><i class="icon-bookmark"></i> CSE</label>
-        <input type="text" id="node-config-input-cse">
+        <label for="node-config-input-appName"><i class="icon-bookmark"></i> app Name</label>
+        <input type="text" id="node-config-input-appName">
+    </div>
+    <div class="form-row">
+        <label for="node-config-input-appID"><i class="icon-bookmark"></i> app ID</label>
+        <input type="text" id="node-config-input-appID">
+    </div>
+    <div class="form-row">
+        <label for="node-config-input-labels"><i class="icon-bookmark"></i> label</label>
+        <input type="text" id="node-config-input-labels">
     </div>
 </script>
