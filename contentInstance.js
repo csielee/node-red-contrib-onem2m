@@ -1,11 +1,33 @@
 module.exports = function(RED) {
-
+    var nc = require('./notifycenter.js');
     RED.nodes.registerType("contentInstance", function(config) {
         RED.nodes.createNode(this, config);
         var node = this;
+
+        node.log(`create contentInstance <${config.id}>`);
+
+        if (config.wires) {
+            node.log(config.wires);
+            var nextid = config.wires[0][0];
+            var nextNode = RED.nodes.getNode(nextid);
+            if (nextNode)
+                node.log(JSON.stringify(nextNode));
+            else
+                nc.once('create', function createCin(id) {
+                    node.log(`get create event by <${id}>`);
+                    if (id == nextid) {
+                        var nextNode = RED.nodes.getNode(nextid);
+                        node.log(JSON.stringify(nextNode));
+                    } else
+                        nc.once('create', createCin);
+                })
+        }
+
+
         node.content = config.content;
         if (node.content && (node.content === "true" || node.content === "false"))
             node.content = "payload";
+
 
         node.on('input', function(msg) {
             var content;

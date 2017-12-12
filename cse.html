@@ -26,7 +26,7 @@
                         a.val(data[element][property]);
                     }
                     if (property == "rn") {
-                        $('#node-config-input-name').val(data[element][property])
+                        $('#node-input-name').val(data[element][property])
                     }
                 });
             })
@@ -45,30 +45,34 @@
         });
     }
     RED.nodes.registerType('CSE',{
-        category: 'config',
+        //category: 'config',
+        category: 'onem2m',
+        color: '#a6bbcf',
         defaults: {
-            host: {value:"localhost",required:true},
+            host: {value:"",required:true},
             name: {value:""},
         },
         credentials: {
             username: {type:"text"},
             password: {type:"password"}
         },
+        inputs : 1,
+        outputs : 1,
         label: function() {
             if (this.name === "")
-                return this.host || "cse";
+                return this.host || "CSE";
             else
                 return this.name;
         },
         oneditprepare: function() {
-            $('#node-config-input-host').change(function() {
-                var host = $('#node-config-input-host').val();
-                var username = $('#node-config-input-username').val();
+            $('#node-input-host').change(function() {
+                var host = $('#node-input-host').val();
+                var username = $('#node-input-username').val();
                 testCSE(host, username);
             });
-            $('#node-config-input-username').change(function() {
-                var host = $('#node-config-input-host').val();
-                var username = $('#node-config-input-username').val();
+            $('#node-input-username').change(function() {
+                var host = $('#node-input-host').val();
+                var username = $('#node-input-username').val();
                 testCSE(host, username);
             });
             //$('#cse-info').css('display','none');
@@ -80,17 +84,17 @@
 
 <script type="text/x-red" data-template-name="CSE">
     <div class="form-row">
-        <label for="node-config-input-host"><i class="icon-bookmark"></i> host</label>
-        <input type="text" id="node-config-input-host">
-        <input type="text" id="node-config-input-name" style="display:none">
+        <label for="node-input-host"><i class="icon-bookmark"></i> host</label>
+        <input type="text" id="node-input-host">
+        <input type="text" id="node-input-name" style="display:none">
     </div>
     <div class="form-row">
-        <label for="node-config-input-username"><i class="icon-tag"></i> Username</label>
-        <input type="text" id="node-config-input-username">
+        <label for="node-input-username"><i class="icon-tag"></i> Username</label>
+        <input type="text" id="node-input-username">
     </div>
     <div class="form-row">
-        <label for="node-config-input-password"><i class="icon-tag"></i> Password</label>
-        <input type="password" id="node-config-input-password">
+        <label for="node-input-password"><i class="icon-tag"></i> Password</label>
+        <input type="password" id="node-input-password">
     </div>
     <div id="cse-info">
         <div class="form-row">
@@ -108,4 +112,8 @@
     <div id="cse-error" class="form-row">
 
     </div>
+</script>
+
+<script type="text/x-red" data-help-name='container'>
+    <p>a oneM2M cse</p>
 </script>

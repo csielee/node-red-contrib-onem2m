@@ -1,39 +1,48 @@
 <script type="text/javascript">
     RED.nodes.registerType('AE',{
-        category: 'config',
+        //category: 'config',
+        category: 'onem2m',
+        color: '#a6bbcf',
         defaults: {
             name: {value:"",},
-            cse: {value:"",required:true,type:"CSE"},
-            appName : {value:""},
-            appID : {value:"",required:true},
-            labels : {value:""},
+            //cse: {value:"",required:true,type:"CSE"},
+            rn : {value:""},
+            apn : {value:""},
+            api : {value:"",required:true},
+            lbl : {value:""},
 
         },
+        inputs : 1,
+        outputs : 1,
         label: function() {
-            return this.name || "AE";
-        }
+            this.name = this.rn;
+            return this.rn || "AE";
+        },
+        oneditsave : () => {
+            //this.rn = $('#node-input-name').val();
+        },
     });
 </script>
 
 <script type="text/x-red" data-template-name="AE">
     <div class="form-row">
-        <label for="node-config-input-cse"><i class="icon-bookmark"></i> CSE</label>
-        <input type="text" id="node-config-input-cse">
+        <label for="node-input-rn"><i class="icon-bookmark"></i>resource name</label>
+        <input type="text" id="node-input-rn">
     </div>
     <div class="form-row">
-        <label for="node-config-input-name"><i class="icon-bookmark"></i>resource name</label>
-        <input type="text" id="node-config-input-name">
+        <label for="node-input-apn"><i class="icon-bookmark"></i> app Name</label>
+        <input type="text" id="node-input-apn">
     </div>
     <div class="form-row">
-        <label for="node-config-input-appName"><i class="icon-bookmark"></i> app Name</label>
-        <input type="text" id="node-config-input-appName">
+        <label for="node-input-api"><i class="icon-bookmark"></i> app ID</label>
+        <input type="text" id="node-input-api">
     </div>
     <div class="form-row">
-        <label for="node-config-input-appID"><i class="icon-bookmark"></i> app ID</label>
-        <input type="text" id="node-config-input-appID">
+        <label for="node-input-lbl"><i class="icon-bookmark"></i> label</label>
+        <input type="text" id="node-input-lbl">
     </div>
-    <div class="form-row">
-        <label for="node-config-input-labels"><i class="icon-bookmark"></i> label</label>
-        <input type="text" id="node-config-input-labels">
-    </div>
+</script>
+
+<script type="text/x-red" data-help-name='container'>
+    <p>a oneM2M AE</p>
 </script>
