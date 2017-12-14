@@ -1,6 +1,7 @@
 module.exports = function(RED) {
     var request = require('request');
     var onem2m = require('onem2m');
+    var allPrevNodeList = {};
     var createResource = function(url, ty, body) {
         if (typeof ty === 'string')
             ty = onem2m.code.getResourceType(ty);
@@ -11,7 +12,7 @@ module.exports = function(RED) {
         });
         thisoption.headers['Content-Type'] = 'application/json;ty='+ty;
         thisoption.body = body;
-        return new Promise((resolve, reject) => {
+        return [new Promise((resolve, reject) => {
             request(thisoption, (error, response, body)=>{
                 if (!error) {
                     this.log(`<create>url : ${thisoption.url} ,body : ${JSON.stringify(body)}`);
@@ -26,14 +27,14 @@ module.exports = function(RED) {
                     reject([error, this, url])
                 }
             });
-        });
+        })];
     }
     var retrieveResource = function(url) {
         var thisoption = Object.assign({},this.requestOption,{
             url : this.requestOption.url + url,
             method : 'GET',
         });
-        return new Promise((resolve, reject) => {
+        return [new Promise((resolve, reject) => {
             request(thisoption, (error, response, body)=>{
                 if (!error) {
                     this.log(`<retrieve>url : ${thisoption.url} ,body : ${JSON.stringify(body)}`);
@@ -48,7 +49,7 @@ module.exports = function(RED) {
                     reject([error, this, url])
                 }
             });
-        });
+        })];
     };
     var updateResource = function(url, ty, body) {
         if (typeof ty === 'string')
@@ -60,7 +61,7 @@ module.exports = function(RED) {
         });
         thisoption.headers['Content-Type'] = 'application/json;ty='+ty;
         thisoption.body = body;
-        return new Promise((resolve, reject) => {
+        return [new Promise((resolve, reject) => {
             request(thisoption, (error, response, body)=>{
                 if (!error) {
                     this.log(`<update>url : ${thisoption.url} ,body : ${JSON.stringify(body)}`);
@@ -75,14 +76,14 @@ module.exports = function(RED) {
                     reject([error, this, url])
                 }
             });
-        });
+        })];
     };
     var deleteResource = function(url) {
         var thisoption = Object.assign({},this.requestOption,{
             url : this.requestOption.url + url,
             method : 'DELETE',
         });
-        return new Promise((resolve, reject) => {
+        return [new Promise((resolve, reject) => {
             request(thisoption, (error, response, body)=>{
                 if (!error) {
                     this.log(`<delete>url : ${thisoption.url} ,body : ${JSON.stringify(body)}`);
@@ -97,11 +98,14 @@ module.exports = function(RED) {
                     reject([error, this, url])
                 }
             });
-        });
+        })];
     };
     RED.nodes.registerType("CSE",function (config) {
         RED.nodes.createNode(this,config);
         var node = this;
+        node.prevNodeList = allPrevNodeList[this.id];
+        if (!node.prevNodeList)
+            node.prevNodeList = [];
         node.status({});
         node.requestOption = {
             //url : config.host + '/' + config.name + '/',
@@ -124,6 +128,18 @@ module.exports = function(RED) {
         node.log("create cse");
         //requestOption['X-M2M-Origin'] = node.credentials.username+':'+node.credentials.password;
         //requestOption['url'] = config.host;
+
+        // tall prev node self update
+        if (node.prevNodeList.length > 0) {
+            node.prevNodeList.forEach(id=>{
+                var prevNode = RED.nodes.getNode(id);
+                if (prevNode) {
+                    if (prevNode.needCreateNodeList.indexOf(id) == -1)
+                        prevNode.needCreateNodeList.push(id);
+                }
+            })
+        }
+        
         node.createResource = createResource;
         node.retrieveResource = retrieveResource;
         node.updateResource = updateResource;
@@ -145,6 +161,6 @@ module.exports = function(RED) {
         }
     });
 
-    console.log('require ces.js in runtime!!!');
+    //console.log('require ces.js in runtime!!!');
     //console.log(RED.httpNode);
 }
