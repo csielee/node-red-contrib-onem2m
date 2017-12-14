@@ -6,11 +6,11 @@
             name : {
                 value: ""
             },
-            labels : {
+            lbl : {
                 value: ""
             },
             content : {
-                value: "false",
+                value: "payload",
                 required: true
             }
         },
@@ -21,7 +21,7 @@
             return this.name || 'contentInstance';
         },
         oneditprepare: function() {
-            $("#node-input-typed-content").typedInput({types:['msg', {value:"full",label:"wowowo",hasValue:false}]});
+            $("#node-input-typed-content").typedInput({types:['msg', {value:"full",label:"all msg object",hasValue:false}]});
             if (this.content === "true" || this.content === true) {
                 // show complete message object
                 $("#node-input-typed-content").typedInput('type','full');
@@ -55,8 +55,8 @@
         <input type="text" id="node-input-name" placeholder="name">
     </div>
     <div class="form-row">
-        <label for="node-input-labels"><i class="icon-tag"></i> labels</label>
-        <input type="text" id="node-input-labels" placeholder="labels">
+        <label for="node-input-lbl"><i class="icon-tag"></i> labels</label>
+        <input type="text" id="node-input-labels" placeholder="lbl">
     </div>
     <div class="form-row">
         <label for="node-input-typed-content"><i class="fa fa-list"></i> content</label>

@@ -1,5 +1,6 @@
 const request = require('request');
 const onem2m = require('onem2m');
+request.debug = true;
 
 const resourceParent = {
     "AE" : ["CSE"],
@@ -9,12 +10,45 @@ const resourceParent = {
 const resourceAttr = {
     "AE" : ['rn','api','apn','lbl','rr'],
     "container" : ['rn'],
+    "contentInstance" : ['lbl']
 }
 
 module.exports = {
+    createInstanceNode : (node, config) => {
+        if (!node.id) {
+            console.log('createInstance need to use a node-red node')
+            return;
+        }
+        if (node.type != "contentInstance") {
+            node.warn(`${node.type} can not create Instance`)
+            return;    
+        }
+        node.tyShortName = onem2m.name.exchange(node.type, 'ResourceTypes');
+
+        node.getInstance = (msg) => {
+            var instance = {};
+            instance["m2m:"+node.tyShortName] = {
+                'lbl' : config.lbl,
+                'cnf' : 'application/json',
+            }
+            if (config.content == "true")
+                instance["m2m:"+node.tyShortName]["con"] = JSON.stringify(msg);
+            else {
+                if (!msg[config.content]) {
+                    node.warn(`msg no ${config.content} property`)
+                    msg[config.content] = `create by ${node.id} node`;
+                }
+                
+                instance["m2m:"+node.tyShortName]["con"] = JSON.stringify(msg[config.content]);  
+            }
+            return instance;          
+        }
+
+        node.log(`create ${node.type} <${node.id}>`);
+    },
     createResourceNode : (node, localinfo, config, RED) => {
         if (!node.id) {
-            console.log('createCSENode need to use a node-red node')
+            console.log('createResourceNode need to use a node-red node')
             return;
         }
         if (node.type == "CSE") {

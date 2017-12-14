@@ -12,7 +12,19 @@ module.exports = function(RED) {
         node.status({});
 
         node.on('input', function(msg) {
-            node.send(msg);
+            if (msg.content) {
+                node.log(`url : ${msg.url}, ty : ${msg.ty} , con : ${JSON.stringify(msg.content)}`)
+                node.createResource(msg.url, msg.ty, msg.content)[0].then(data => {
+                    node.send(data[0]);
+                }).catch(error => {
+                    if (typeof error != "string") {
+                        node.error(error);
+                    } else {
+                        node.warn(error);
+                    }
+                })
+            } else
+                node.send(msg);
         });
 
         node.on('close', function(done) {

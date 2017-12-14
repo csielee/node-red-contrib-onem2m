@@ -31,8 +31,10 @@ module.exports = function(RED) {
 
         this.on('input', function(msg) {
             this.checkResource().then(data => {
-                if (data)
+                if (data) {
+                    msg.url = this.rn + '/' + msg.url;
                     this.send(msg)
+                }
                 else {
                     this.error('check fail, not send msg')
                 }

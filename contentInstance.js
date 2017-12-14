@@ -1,11 +1,12 @@
 module.exports = function(RED) {
     var nc = require('./notifycenter.js');
+    var resource = require('./resourceNode.js');
     RED.nodes.registerType("contentInstance", function(config) {
         RED.nodes.createNode(this, config);
+        resource.createInstanceNode(this, config);
         var node = this;
 
-        node.log(`create contentInstance <${config.id}>`);
-
+        /*
         if (config.wires) {
             node.log(config.wires);
             var nextid = config.wires[0][0];
@@ -26,11 +27,11 @@ module.exports = function(RED) {
 
         node.content = config.content;
         if (node.content && (node.content === "true" || node.content === "false"))
-            node.content = "payload";
+            node.content = "payload";*/
 
 
         node.on('input', function(msg) {
-            var content;
+            /*var content;
             try {
                 content = msg[node.content];
             } catch (error) {
@@ -44,7 +45,14 @@ module.exports = function(RED) {
                 payload : "for MQTT",
                 content : content
             };
-            node.send([msgHTTP, msgMQTT]);
+            node.send([msgHTTP, msgMQTT]);*/
+            var newmsg = {
+                "origin" : msg,
+                "url" : "",
+                "ty" : node.type,
+                "content" : node.getInstance(msg),
+            };
+            node.send(newmsg);
         });
     });
 }
