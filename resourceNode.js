@@ -130,6 +130,24 @@ module.exports = {
         node.checkResource = async function() {
             var nodeList = [];
             var checked = true;
+            // detect new wire
+            if (!localinfo[node.id].wires)
+                localinfo[node.id].wires = node.wires.slice();
+            else {
+                node.wires[0].forEach(id=>{
+                    // has new wires
+                    if (localinfo[node.id].wires[0].indexOf(id) == -1) {
+                        node.needCheckNodeList.push(id);
+                        var nextNode = RED.nodes.getNode(id);
+                        if (nextNode.prevNodeList && nextNode.prevNodeList.indexOf(node.id) == -1)
+                            nextNode.prevNodeList.push(node.id);
+                    } else {
+
+                    }
+                })    
+            }
+
+
             if(!node.hasChecked) {
                 node.hasChecked = true;
                 nodeList = node.getAllNextNode();
@@ -141,6 +159,7 @@ module.exports = {
                 })
             }
             node.needCheckNodeList = [];
+
 
             if (nodeList.length > 0) {
                 // check all next node
