@@ -1,0 +1,24 @@
+<script type="text/javascript">
+    RED.nodes.registerType('subscription',{
+        category: 'onem2m',
+        color: '#a6bbcf',
+        defaults: {
+            name : {
+                value: ""
+            },
+        },
+        outputs: 1,
+        icon: "inject.png",
+        label : function() {
+            return this.name || 'subscription';
+        },
+    });
+</script>
+
+<script type="text/x-red" data-template-name="subscription">
+
+</script>
+
+<script type="text/x-red" data-help-name='subscription'>
+    <p>a oneM2M subscription</p>
+</script>

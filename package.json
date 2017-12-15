@@ -6,7 +6,8 @@
       "container": "container.js",
       "container-parent": "container-parent.js",
       "AE": "ae.js",
-      "CSE": "cse.js"
+      "CSE": "cse.js",
+      "subscription": "subscription.js"
     }
   },
   "dependencies": {
