@@ -212,7 +212,8 @@ module.exports = {
                     return false;
 
                 for (var index in nodeList) {
-                    var arr = nodeList[index].retrieveResource(this.rn) 
+                    var nextNode = nodeList[index];
+                    var arr = nextNode.retrieveResource(this.rn) 
                     for (var index in arr) {
                         try {
                             var data = await arr[index];
@@ -265,7 +266,7 @@ module.exports = {
                                 // set ae info
                                 var info = {};
                                 resourceAttr[node.type].forEach(item => {
-                                    if (config[item])
+                                    if (config[item] != undefined || config[item] != null)
                                         info[item] = config[item];
                                 });
                                 var tmp = {};
