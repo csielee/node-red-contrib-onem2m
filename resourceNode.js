@@ -160,8 +160,24 @@ module.exports = {
         };
 
         node.hasChecked = false;
+        node.IsCheckRunning = false;
         node.tyShortName = onem2m.name.exchange(node.type, 'ResourceTypes');
         node.checkResource = async function() {
+            // if othre node run first check, must be wait
+            if (!node.hasChecked && node.IsCheckRunning) {
+                return new Promise((resolve, reject) => {
+                    var waitLoop = ()=>{
+                        setTimeout(() => {
+                            if (node.hasChecked && !node.IsCheckRunning) {
+                                resolve(node.firstCheckedResult);
+                            } else
+                                waitLoop();
+                        }, 500);
+                    }
+                    waitLoop();
+                });
+            }
+
             var nodeList = [];
             var checked = true;
             // detect new wire
@@ -183,7 +199,7 @@ module.exports = {
 
 
             if(!node.hasChecked) {
-                node.hasChecked = true;
+                node.IsCheckRunning = true;
                 nodeList = node.getAllNextNode();
             } else if (node.needCheckNodeList.length > 0) {
                 node.needCheckNodeList.forEach(id=>{
@@ -295,6 +311,12 @@ module.exports = {
                     } // retrieve finish
 
                 }
+            }
+
+            if (!node.hasChecked && node.IsCheckRunning) {
+                node.hasChecked = true;
+                node.firstCheckedResult = checked;
+                node.IsCheckRunning = false;
             }
 
             return checked;
