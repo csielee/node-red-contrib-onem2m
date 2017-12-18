@@ -1,6 +1,6 @@
 const request = require('request');
 const onem2m = require('onem2m');
-request.debug = true;
+//request.debug = true;
 
 const resourceParent = {
     "AE" : ["CSE"],
@@ -459,8 +459,8 @@ module.exports = {
             })];
         };
         node.checkResource = async function() {
+            // check cse can connect
             var result = await true;
-            node.log('be check : '+result)
             return result;
         }
 

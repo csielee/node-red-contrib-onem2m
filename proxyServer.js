@@ -18,7 +18,14 @@ app.use('/proxy', function(req, res) {
         console.log(headers);
         return;
     }
-    var href = /\/proxy\/(.*)/i.exec(req.originalUrl)[1];
+    try {
+        var href = /\/proxy\/(.*)/i.exec(req.originalUrl)[1];
+    } catch (error) {
+        res.write('no query url')
+        res.end();
+        return;
+    }
+    
     var option = {
         url : href,
         method : req.method,

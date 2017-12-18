@@ -12,6 +12,7 @@
   },
   "dependencies": {
     "http": "latest",
+    "ngrok": "^2.2.24",
     "node-red": "^0.17.5",
     "onem2m": "^0.1.8",
     "request": "^2.83.0",

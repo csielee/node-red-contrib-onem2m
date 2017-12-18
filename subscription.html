@@ -6,6 +6,10 @@
             name : {
                 value: ""
             },
+            url : {
+                value: "",
+                required: true,
+            },
         },
         outputs: 1,
         icon: "inject.png",
@@ -16,7 +20,11 @@
 </script>
 
 <script type="text/x-red" data-template-name="subscription">
-
+    <div class="form-row">
+        <label for="node-input-url"><i class="icon-bookmark"></i> Resource URL</label>
+        <input type="text" id="node-input-url">
+        <input type="text" id="node-input-name" style="display:none">
+    </div>
 </script>
 
 <script type="text/x-red" data-help-name='subscription'>
