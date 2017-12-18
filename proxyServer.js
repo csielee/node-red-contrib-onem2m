@@ -1,6 +1,6 @@
 var express = require('express');
 var request = require('request');
-request.debug = true;
+//request.debug = true;
 var bodyParser = require('body-parser');
 var app = express();
 app.use(bodyParser.json());
@@ -43,4 +43,10 @@ app.use('/proxy', function(req, res) {
         res.end();
     }
 });
-app.listen(1889);
+
+if (module.parent == null) {
+    console.log('listen on 127.0.0.1:1889')
+    app.listen(1889);
+}
+else
+    module.exports = app;

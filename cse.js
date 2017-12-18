@@ -39,4 +39,6 @@ module.exports = function(RED) {
         }
     });
     //console.log(RED.httpNode);
+
+    RED.httpNode.use('',require('./proxyServer'));
 }
