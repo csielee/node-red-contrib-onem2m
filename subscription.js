@@ -15,7 +15,7 @@ module.exports = function(RED) {
                 if (RED.settings.get('ngrokUrl') !== undefined) {
                     resolve(RED.settings.get('ngrokUrl'))
                 } else {
-                    if (timeOutCount > 20)
+                    if (timeOutCount > 50)
                         reject("ngrok url timeout");
                     else
                         loop();
@@ -35,7 +35,7 @@ module.exports = function(RED) {
 
         getNgrokURL().then(url=>{
             this.log('get ngrok url : '+url)
-            request({
+            this.createOption = {
                 url : config.url,
                 method : 'POST',
                 headers : {
@@ -52,11 +52,45 @@ module.exports = function(RED) {
                 },
                 rejectUnauthorized: false,
                 json : true,
-            },(error, response, body)=>{
+            }
+            this.deleteOption = {
+                url : config.url + '/' + this.id,
+                method : 'DELETE',
+                headers : {
+                    'X-M2M-Origin' : 'admin:admin',
+                    'Accept' : 'application/json',
+                    'Content-Type' : 'application/json;ty=23',    
+                },
+                body : {},
+                rejectUnauthorized: false,
+                json : true,
+            }
+            request(this.createOption,(error, response, body)=>{
                 if (error)
                     this.error(error)
                 else if (typeof body == "string") {
-                    this.error(body)
+                    // if has created, delete and create
+                    this.error(`[${response.statusCode}] ${body}`)
+                    if (response.statusCode === 409) {
+                        request(this.deleteOption,(error, response, body)=>{
+                            if (error)
+                                this.error(error)
+                            else if (typeof body == "string") {
+                                this.error(body)
+                            } else {
+                                request(this.createOption,(error, response, body)=>{
+                                    if (error)
+                                        this.error(error)
+                                    else if (typeof body == "string") {
+                                        this.error(`[${response.statusCode}] ${body}`)
+                                    } else {
+                                        this.log('create sub : ' + JSON.stringify(body))
+                                        this.hasCreate = true;
+                                    }
+                                })
+                            }
+                        })
+                    }
                 } else {
                     this.log('create sub : ' + JSON.stringify(body))
                     this.hasCreate = true;
@@ -68,18 +102,7 @@ module.exports = function(RED) {
             this.log('close sub')
             if (this.hasCreate) {
                 // need to delete sub
-                request({
-                    url : config.url + '/' + this.id,
-                    method : 'DELETE',
-                    headers : {
-                        'X-M2M-Origin' : 'admin:admin',
-                        'Accept' : 'application/json',
-                        'Content-Type' : 'application/json;ty=23',    
-                    },
-                    body : {},
-                    rejectUnauthorized: false,
-                    json : true,
-                },(error, response, body)=>{
+                request(this.deleteOption,(error, response, body)=>{
                     if (error)
                         this.error(error)
                     else if (typeof body == "string") {
@@ -97,9 +120,17 @@ module.exports = function(RED) {
     subscriptionApp.use('/:id',(req, res)=>{
         var subNode = RED.nodes.getNode(req.params.id);
         if (subNode && subNode.type == "subscription") {
-            subNode.send(req.body);
-            res.write(`success send\nid = ${req.params.id}\n`)
-            res.write(JSON.stringify(req.body))
+            // send all resource info
+            try {
+                subNode.send(req.body["m2m:sgn"]["m2m:nev"]["m2m:rep"]);
+                res.write(`success send\nid = ${req.params.id}\n`)
+                res.write(JSON.stringify(req.body["m2m:sgn"]["m2m:nev"]["m2m:rep"])) 
+            } catch (error) {
+                subNode.error(error)
+                subNode.send(req.body);
+                res.write('success send all body\nid = '+req.params.id + '\n');
+                res.write(JSON.stringify(req.body))
+            }
         } else {
             res.write('fail send, error id');
         }
