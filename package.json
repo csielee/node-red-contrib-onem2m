@@ -13,19 +13,19 @@
   "dependencies": {
     "http": "latest",
     "ngrok": "^2.2.24",
-    "node-red": "^0.17.5",
     "onem2m": "^0.1.8",
     "request": "^2.83.0",
     "url": "latest"
   },
-  "version": "0.0.1",
-  "description": "using oneM2M",
+  "version": "0.1.0",
+  "description": "using oneM2M protocol at Node-RED",
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1"
   },
-  "author": "csielee",
+  "author": "csielee <lee097019@gmail.com>",
   "repository": {
     "type": "git",
     "url": "https://github.com/csielee/node-red-contrib-onem2m.git"
-  }
+  },
+  "license": "ISC"
 }
