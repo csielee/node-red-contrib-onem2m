@@ -11,16 +11,19 @@
     }
   },
   "dependencies": {
-    "http": "latest",
+    "body-parser": "^1.18.2",
+    "express": "^4.16.2",
+    "http": "0.0.0",
     "ngrok": "^2.2.24",
     "onem2m": "^0.1.8",
     "request": "^2.83.0",
-    "url": "latest"
+    "url": "^0.11.0"
   },
-  "version": "0.1.0",
+  "version": "0.1.2",
   "description": "using oneM2M protocol at Node-RED",
   "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1"
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "pi" : "node --max-old-space-size=256 C:\\Users\\USER\\AppData\\Roaming\\npm\\node_modules\\node-red\\red.js"
   },
   "author": "csielee <lee097019@gmail.com>",
   "repository": {

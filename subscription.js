@@ -24,6 +24,7 @@ module.exports = function(RED) {
             loop();
         })
     }
+    RED.settings.set('getNgrokURL', getNgrokURL);
 
     RED.nodes.registerType("subscription",function (config) {
         RED.nodes.createNode(this,config);
@@ -126,8 +127,8 @@ module.exports = function(RED) {
                 res.write(`success send\nid = ${req.params.id}\n`)
                 res.write(JSON.stringify(req.body["m2m:sgn"]["m2m:nev"]["m2m:rep"])) 
             } catch (error) {
-                subNode.error(error)
-                subNode.send(req.body);
+                //subNode.error(error)
+                //subNode.send(req.body);
                 res.write('success send all body\nid = '+req.params.id + '\n');
                 res.write(JSON.stringify(req.body))
             }
@@ -136,6 +137,12 @@ module.exports = function(RED) {
         }
 
         res.end();
+    })
+    subscriptionApp.use('', (req, res)=>{
+        RED.settings.get('getNgrokURL')().then(url=>{
+            res.write(url)
+            res.end()
+        }).catch(error=>RED.log.error(error))
     })
     RED.httpNode.use('/sub',subscriptionApp);
 

@@ -34,7 +34,7 @@ module.exports = {
             if (config.content == "true")
                 instance["m2m:"+node.tyShortName]["con"] = JSON.stringify(msg);
             else {
-                if (!msg[config.content]) {
+                if (msg[config.content] === undefined) {
                     node.warn(`msg no ${config.content} property`)
                     msg[config.content] = `create by ${node.id} node`;
                 }
@@ -72,18 +72,17 @@ module.exports = {
         if (!node.prevNodeList)
             node.prevNodeList = localinfo[node.id].prevNodeList = [];
         if (node.prevNodeList.length > 0) {
-            this.prevNodeList.forEach(id=>{
+            node.prevNodeList.forEach(id=>{
                 var prevNode = RED.nodes.getNode(id);
                 if (prevNode && prevNode.needCheckNodeList && prevNode.needCheckNodeList.indexOf(id) == -1)
                         prevNode.needCheckNodeList.push(id);
 
             })
         }
-        //node.nextNodeList = node.wires[0];
+
         node.nextNodeList = [];
 
         node.handleError = error => {
-            //this.needCreateNodeList.push(id);
             node.error(error);
         }
 
@@ -111,10 +110,10 @@ module.exports = {
             if (typeof url != "string")
                 url = '';
             else
-                url = this.rn + '/' + url;
+                url = node.rn + '/' + url;
             
             var newList = [];
-            node.getAllNextNode(this.wires[0]).forEach(item=>{
+            node.getAllNextNode().forEach(item=>{
                 newList = newList.concat(item.createResource(url, ty, body));
             })
             return newList;
@@ -124,10 +123,10 @@ module.exports = {
             if (typeof url != "string")
                 url = '';
             else
-                url = this.rn + '/' + url;
+                url = node.rn + '/' + url;
             
             var newList = [];
-            node.getAllNextNode(this.wires[0]).forEach(item=>{
+            node.getAllNextNode().forEach(item=>{
                 newList = newList.concat(item.retrieveResource(url));
             })
             return newList;
@@ -137,10 +136,10 @@ module.exports = {
             if (typeof url != "string")
                 url = '';
             else
-                url = this.rn + '/' + url;
+                url = node.rn + '/' + url;
             
             var newList = [];
-            node.getAllNextNode(this.wires[0]).forEach(item=>{
+            node.getAllNextNode().forEach(item=>{
                 newList = newList.concat(item.updateResource(url, ty, body));
             })
             return newList;
@@ -150,10 +149,10 @@ module.exports = {
             if (typeof url != "string")
                 url = '';
             else
-                url = this.rn + '/' + url;
+                url = node.rn + '/' + url;
             
             var newList = [];
-            node.getAllNextNode(this.wires[0]).forEach(item=>{
+            node.getAllNextNode().forEach(item=>{
                 newList = newList.concat(item.deleteResource(url));
             })
             return newList;
@@ -229,7 +228,7 @@ module.exports = {
 
                 for (var index in nodeList) {
                     var nextNode = nodeList[index];
-                    var arr = nextNode.retrieveResource(this.rn) 
+                    var arr = nextNode.retrieveResource(node.rn) 
                     for (var index in arr) {
                         try {
                             var data = await arr[index];
@@ -249,7 +248,7 @@ module.exports = {
                                 tmp[("m2m:"+node.tyShortName)] = info;
                                 info = tmp;
                                 // need to update
-                                this.log('need to update')
+                                node.log('need to update')
                                 try {
                                     var result = await data[1].updateResource(data[2], node.type, info)[0];
                                     // update success
@@ -300,7 +299,7 @@ module.exports = {
                                     else {
                                         node.warn(error[0])
                                         node.needCheckNodeList.push(nextNode.id);
-                                        this.status({fill:"red",shape:"dot",text:"create fail"});
+                                        node.status({fill:"red",shape:"dot",text:"create fail"});
                                     }
                                 }
     
@@ -358,14 +357,14 @@ module.exports = {
 
         node.prevNodeList = localinfo[node.id].prevNodeList;
         if (!node.prevNodeList)
-            node.prevNodeList = [];
+            node.prevNodeList = localinfo[node.id] = [];
         
         node.createResource = function(url, ty, body) {
             if (typeof ty === 'string')
                 ty = onem2m.code.getResourceType(ty);
     
-            var thisoption = Object.assign({},this.requestOption,{
-                url : this.requestOption.url + url,
+            var thisoption = Object.assign({},node.requestOption,{
+                url : node.requestOption.url + url,
                 method : 'POST',
             });
             thisoption.headers['Content-Type'] = 'application/json;ty='+ty;
@@ -373,38 +372,38 @@ module.exports = {
             return [new Promise((resolve, reject) => {
                 request(thisoption, (error, response, body)=>{
                     if (!error) {
-                        this.log(`<create>url : ${thisoption.url} ,body : ${JSON.stringify(body)}`);
-                        this.status({fill:"green",shape:"dot",text:"connect"});
+                        node.log(`<create>url : ${thisoption.url} ,body : ${JSON.stringify(body)}`);
+                        node.status({fill:"green",shape:"dot",text:"connect"});
                         if (typeof body == "string")
-                            reject([body, this, url]);
+                            reject([body, node, url]);
                         else
-                            resolve([body, this, url])
+                            resolve([body, node, url])
                     }
                     else {
-                        this.status({fill:"red",shape:"dot",text:"disconnect"});
-                        reject([error, this, url])
+                        node.status({fill:"red",shape:"dot",text:"disconnect"});
+                        reject([error, node, url])
                     }
                 });
             })];
         }
         node.retrieveResource = function(url) {
-            var thisoption = Object.assign({},this.requestOption,{
-                url : this.requestOption.url + url,
+            var thisoption = Object.assign({},node.requestOption,{
+                url : node.requestOption.url + url,
                 method : 'GET',
             });
             return [new Promise((resolve, reject) => {
                 request(thisoption, (error, response, body)=>{
                     if (!error) {
-                        this.log(`<retrieve>url : ${thisoption.url} ,body : ${JSON.stringify(body)}`);
-                        this.status({fill:"green",shape:"dot",text:"connect"});
+                        node.log(`<retrieve>url : ${thisoption.url} ,body : ${JSON.stringify(body)}`);
+                        node.status({fill:"green",shape:"dot",text:"connect"});
                         if (typeof body == "string")
-                            reject([body, this, url]);
+                            reject([body, node, url]);
                         else
-                            resolve([body, this, url])
+                            resolve([body, node, url])
                     }
                     else {
-                        this.status({fill:"red",shape:"dot",text:"disconnect"});
-                        reject([error, this, url])
+                        node.status({fill:"red",shape:"dot",text:"disconnect"});
+                        reject([error, node, url])
                     }
                 });
             })];
@@ -413,8 +412,8 @@ module.exports = {
             if (typeof ty === 'string')
                 ty = onem2m.code.getResourceType(ty);
     
-            var thisoption = Object.assign({},this.requestOption,{
-                url : this.requestOption.url + url,
+            var thisoption = Object.assign({},node.requestOption,{
+                url : node.requestOption.url + url,
                 method : 'PUT',
             });
             thisoption.headers['Content-Type'] = 'application/json;ty='+ty;
@@ -422,38 +421,38 @@ module.exports = {
             return [new Promise((resolve, reject) => {
                 request(thisoption, (error, response, body)=>{
                     if (!error) {
-                        this.log(`<update>url : ${thisoption.url} ,body : ${JSON.stringify(body)}`);
-                        this.status({fill:"green",shape:"dot",text:"connect"});
+                        node.log(`<update>url : ${thisoption.url} ,body : ${JSON.stringify(body)}`);
+                        node.status({fill:"green",shape:"dot",text:"connect"});
                         if (typeof body == "string")
-                            reject([body, this, url]);
+                            reject([body, node, url]);
                         else
-                            resolve([body, this, url])
+                            resolve([body, node, url])
                     }
                     else {
-                        this.status({fill:"red",shape:"dot",text:"disconnect"});
-                        reject([error, this, url])
+                        node.status({fill:"red",shape:"dot",text:"disconnect"});
+                        reject([error, node, url])
                     }
                 });
             })];
         };
         node.deleteResource = function(url) {
-            var thisoption = Object.assign({},this.requestOption,{
-                url : this.requestOption.url + url,
+            var thisoption = Object.assign({},node.requestOption,{
+                url : node.requestOption.url + url,
                 method : 'DELETE',
             });
             return [new Promise((resolve, reject) => {
                 request(thisoption, (error, response, body)=>{
                     if (!error) {
-                        this.log(`<delete>url : ${thisoption.url} ,body : ${JSON.stringify(body)}`);
-                        this.status({fill:"green",shape:"dot",text:"connect"});
+                        node.log(`<delete>url : ${thisoption.url} ,body : ${JSON.stringify(body)}`);
+                        node.status({fill:"green",shape:"dot",text:"connect"});
                         if (typeof body == "string")
-                            reject([body, this, url]);
+                            reject([body, node, url]);
                         else
-                            resolve([body, this, url])
+                            resolve([body, node, url])
                     }
                     else {
-                        this.status({fill:"red",shape:"dot",text:"disconnect"});
-                        reject([error, this, url])
+                        node.status({fill:"red",shape:"dot",text:"disconnect"});
+                        reject([error, node, url])
                     }
                 });
             })];
