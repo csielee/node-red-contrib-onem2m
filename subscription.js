@@ -34,70 +34,78 @@ module.exports = function(RED) {
 
         this.hasCreate = false;
 
-        getNgrokURL().then(url=>{
-            this.log('get ngrok url : '+url)
-            this.createOption = {
-                url : config.url,
-                method : 'POST',
-                headers : {
-                    'X-M2M-Origin' : 'admin:admin',
-                    'Accept' : 'application/json',
-                    'Content-Type' : 'application/json;ty=23',    
-                },
-                body : {
-                    "m2m:sub": {
-                        "rn" : this.id,
-                        "nu" : url + '/sub/' + this.id,
-                        "nct" : 2,
-                    }
-                },
-                rejectUnauthorized: false,
-                json : true,
-            }
-            this.deleteOption = {
-                url : config.url + '/' + this.id,
-                method : 'DELETE',
-                headers : {
-                    'X-M2M-Origin' : 'admin:admin',
-                    'Accept' : 'application/json',
-                    'Content-Type' : 'application/json;ty=23',    
-                },
-                body : {},
-                rejectUnauthorized: false,
-                json : true,
-            }
-            request(this.createOption,(error, response, body)=>{
-                if (error)
-                    this.error(error)
-                else if (typeof body == "string") {
-                    // if has created, delete and create
-                    this.error(`[${response.statusCode}] ${body}`)
-                    if (response.statusCode === 409) {
-                        request(this.deleteOption,(error, response, body)=>{
-                            if (error)
-                                this.error(error)
-                            else if (typeof body == "string") {
-                                this.error(body)
-                            } else {
-                                request(this.createOption,(error, response, body)=>{
-                                    if (error)
-                                        this.error(error)
-                                    else if (typeof body == "string") {
-                                        this.error(`[${response.statusCode}] ${body}`)
-                                    } else {
-                                        this.log('create sub : ' + JSON.stringify(body))
-                                        this.hasCreate = true;
-                                    }
-                                })
-                            }
-                        })
-                    }
-                } else {
-                    this.log('create sub : ' + JSON.stringify(body))
-                    this.hasCreate = true;
+        this.sendSub = () => {
+            getNgrokURL().then(url=>{
+                this.log('get ngrok url : '+url)
+                this.createOption = {
+                    url : config.url,
+                    method : 'POST',
+                    headers : {
+                        'X-M2M-Origin' : 'admin:admin',
+                        'Accept' : 'application/json',
+                        'Content-Type' : 'application/json;ty=23',    
+                    },
+                    body : {
+                        "m2m:sub": {
+                            "rn" : this.id,
+                            "nu" : url + '/sub/' + this.id,
+                            "nct" : 2,
+                        }
+                    },
+                    rejectUnauthorized: false,
+                    json : true,
                 }
-            })
-        }).catch(error => this.error(error))
+                this.deleteOption = {
+                    url : config.url + '/' + this.id,
+                    method : 'DELETE',
+                    headers : {
+                        'X-M2M-Origin' : 'admin:admin',
+                        'Accept' : 'application/json',
+                        'Content-Type' : 'application/json;ty=23',    
+                    },
+                    body : {},
+                    rejectUnauthorized: false,
+                    json : true,
+                }
+                request(this.createOption,(error, response, body)=>{
+                    if (error)
+                        this.error(error)
+                    else if (typeof body == "string") {
+                        // if has created, delete and create
+                        this.error(`[${response.statusCode}] ${body}`)
+                        if (response.statusCode === 409) {
+                            request(this.deleteOption,(error, response, body)=>{
+                                if (error)
+                                    this.error(error)
+                                else if (typeof body == "string") {
+                                    this.error(body)
+                                } else {
+                                    request(this.createOption,(error, response, body)=>{
+                                        if (error)
+                                            this.error(error)
+                                        else if (typeof body == "string") {
+                                            this.error(`[${response.statusCode}] ${body}`)
+                                        } else {
+                                            this.log('create sub : ' + JSON.stringify(body))
+                                            this.hasCreate = true;
+                                        }
+                                    })
+                                }
+                            })
+                        }
+                    } else {
+                        this.log('create sub : ' + JSON.stringify(body))
+                        this.hasCreate = true;
+                    }
+                })
+            }).catch(error => this.error(error))
+        }
+        this.sendSub();
+
+        this.on('input', function(msg) {
+            if (!this.hasCreate)
+                this.sendSub();
+        })
 
         this.on('close', function(done) {
             this.log('close sub')
